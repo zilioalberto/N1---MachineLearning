@@ -1,59 +1,9 @@
-# N1 - Machine Learning - Comitê de Classificadores
-
-## Alunos
-- Alberto Zilio  
-- Lucas Carvalho Esteffens  
-- Roni Pereira  
-
----
-
-## 1. Introdução
-O reconhecimento de padrões é um dos principais objetivos da área de *Machine Learning*. A tarefa de **classificação supervisionada** consiste em duas etapas principais:  
-1. **Treinamento** — o modelo aprende padrões a partir de exemplos rotulados.  
-2. **Teste** — o modelo aplica o conhecimento aprendido para prever classes de novas instâncias.  
-
-Nesta atividade (N1), o objetivo é criar um **comitê de classificadores** aplicando **ao menos dois algoritmos de ML** sobre um dataset real, comparar os resultados e avaliar o desempenho por métricas como **acurácia, erro, matriz de confusão, precisão, recall, F1-score e curva ROC**.
-
----
-
-## 2. Dataset Escolhido: *Traffic Flow Prediction Dataset*
-O dataset selecionado é o **Traffic Flow Prediction Dataset**, que tem como objetivo prever o volume de tráfego em rodovias utilizando dados históricos, temporais e contextuais.
-
-### Estrutura geral
-- **36 sensores** distribuídos em duas rodovias na região de Washington D.C./Virgínia.  
-- Dados coletados a cada **15 minutos**.  
-- O objetivo é prever o **volume de tráfego 15 minutos à frente**.  
-
-### Conjuntos disponíveis
-- **Treino:**  
-  - `tra_X_tr`: 1261 intervalos de 15 min, cada um contendo uma matriz (36 × 48).  
-  - `tra_Y_tr`: matriz (36 × 1261) com o volume real de tráfego.  
-- **Teste:**  
-  - `tra_X_te`: 840 intervalos de 15 min (36 × 48).  
-  - `tra_Y_te`: matriz (36 × 840) com o volume real de tráfego.  
-- **Matriz de adjacência (`tra_adj_mat`):** 36 × 36, representando a conectividade espacial entre os sensores.
-
-### Estrutura das 48 features
-Cada sensor possui 48 atributos de entrada:
-- **f0–f9:** Últimos 10 volumes de tráfego (lags temporais).  
-- **f10–f16:** Codificação one-hot do dia da semana.  
-- **f17–f40:** Codificação one-hot da hora do dia (0h–23h).  
-- **f41–f44:** Codificação one-hot da direção da estrada.  
-- **f45:** Número de faixas da estrada.  
-- **f46:** Identificador/nome da estrada.  
-
-### Exemplo
-Para um sensor em um instante `t`:
-```
-[120, 135, 98, 210, 87, 65, 145, 175, 90, 130, 0, 0, 1, ...]
-Target (Y): 142 veículos no próximo intervalo de 15 min
-```
 
 ---
 
 ## 3. Metodologia
 1. **Pré-processamento dos dados**  
-   - Conversão do alvo contínuo (volume de tráfego) em **classes categóricas** (ex.: baixo, médio, alto tráfego).  
+   - Conversão do alvo contínuo (volume de tráfego) em **classes categóricas** (baixo, médio, alto tráfego) a partir de **tercis**.  
    - Normalização dos atributos numéricos.  
 
 2. **Seleção de algoritmos**  
@@ -62,8 +12,8 @@ Target (Y): 142 veículos no próximo intervalo de 15 min
    - (Opcional) Outros algoritmos como SVM ou Naive Bayes podem ser adicionados para comparação.  
 
 3. **Treinamento e teste**  
-   - Aplicação dos algoritmos nos conjuntos `tra_X_tr` e `tra_X_te`.  
-   - Previsão das classes no conjunto de teste.  
+   - Divisão 70/30 entre treino e teste após unificação do dataset.  
+   - Aplicação dos algoritmos e comparação de desempenho.  
 
 4. **Métricas de avaliação**  
    - Acurácia.  
@@ -74,23 +24,64 @@ Target (Y): 142 veículos no próximo intervalo de 15 min
 
 ---
 
-## 4. Resultados (a preencher)
-- **Acurácia dos classificadores:**  
-  - KNN: XX%  
-  - Árvore de Decisão: YY%  
+## 4. Resultados
 
-- **Matriz de Confusão:**  
-  *(inserir tabelas geradas no Colab)*  
+### 4.1 KNN – Baseline
+- Configuração: **k=5, distância Euclidiana (p=2), pesos uniformes**.  
+- **Acurácia:** 92,3%  
+- Classe 0 (baixo tráfego): precisão/recall ≈ 95%.  
+- Classe 1 (médio tráfego): desempenho inferior (≈ 88% recall).  
+- Classe 2 (alto tráfego): bom desempenho (≈ 93%).  
 
-- **Curvas ROC:**  
-  *(inserir gráfico comparativo dos classificadores)*  
+**Matriz de Confusão – Baseline**  
+![baseline_cm](baseline_cm.png)
+
+➡️ O modelo acerta muito bem as classes 0 e 2, mas confunde a classe 1 (tráfego médio) com as vizinhas.
+
+---
+
+### 4.2 KNN – Melhor Configuração
+- Configuração escolhida após teste de hiperparâmetros:  
+  **k=7, distância Manhattan (p=1), pesos = distance**.  
+- **Acurácia:** 92,7%  
+- Classe 1 apresentou **melhoria no F1-score** (de 0.886 para 0.892).  
+
+**Matriz de Confusão – Melhor KNN**  
+![best_cm](best_cm.png)
+
+➡️ Houve redução nos erros da classe intermediária, tornando o modelo mais equilibrado.
+
+---
+
+### 4.3 Comparações Visuais
+
+**Curva ROC (macro-average)**  
+![roc_comparison](roc_comparison.png)  
+- Ambas as versões apresentam AUC elevado (~0.97–0.98).  
+- O modelo otimizado (k=7, Manhattan) apresenta leve ganho na classe 1.  
+
+**Curva Precision–Recall (macro-average)**  
+![pr_comparison](pr_comparison.png)  
+- O modelo otimizado mostra maior equilíbrio entre precisão e recall, especialmente na classe 1.  
+
+**Métricas por Classe (Precision, Recall, F1)**  
+![bars_metrics](bars_metrics.png)  
+- Classe 0 e 2: mantêm desempenho muito alto.  
+- Classe 1: melhoria perceptível no modelo otimizado.  
+
+**Resumo: Acurácia e F1-macro**  
+![acc_f1](acc_f1.png)  
+- Baseline: Accuracy = 0.923, F1_macro = 0.923.  
+- Melhor KNN: Accuracy = 0.927, F1_macro = 0.927.  
 
 ---
 
 ## 5. Conclusão
 - O dataset de tráfego se mostrou **rico em variáveis temporais e contextuais**.  
-- A transformação do problema de regressão em **classificação** permitiu aplicar algoritmos de *Machine Learning* conforme solicitado na N1.  
-- O comparativo entre classificadores mostrou que:  
-  - O **KNN** é eficiente para capturar padrões locais de tráfego.  
-  - A **Árvore de Decisão** oferece melhor interpretabilidade das regras de classificação.  
-- O comitê de classificadores fornece uma visão mais robusta, permitindo escolher o algoritmo mais adequado em cenários reais de previsão de tráfego.
+- A transformação do problema de regressão em **classificação** permitiu aplicar algoritmos de *Machine Learning* conforme solicitado.  
+- O modelo **KNN baseline** já apresentava excelente desempenho (92,3%).  
+- A busca de hiperparâmetros resultou em um **modelo otimizado (k=7, Manhattan, distance)** com leve ganho global e melhoria importante na **classe intermediária (tráfego médio)**.  
+- Os gráficos confirmam que a maior dificuldade é separar o **tráfego médio** das outras categorias, o que faz sentido do ponto de vista prático.  
+- A próxima etapa será comparar os resultados do KNN com a **Árvore de Decisão**, compondo o **comitê de classificadores**.
+
+---
