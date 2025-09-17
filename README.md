@@ -72,7 +72,7 @@ O dataset selecionado é o **Traffic Flow Prediction Dataset**, que tem como obj
   - Classe 2 (alto):  precision≈0.928, recall≈0.933  
 
 **Matriz de Confusão — Baseline**  
-![Matriz de Confusão (Baseline)](plots/baseline_cm.png)
+![Matriz de Confusão (Baseline)](baseline_cm.png)
 
 > **Leitura:** classes 0 e 2 têm excelente separação; a classe 1 é a mais desafiadora (confusões com vizinhas).
 
@@ -84,7 +84,7 @@ Após a busca de hiperparâmetros, a melhor configuração foi:
 - **Acurácia:** **0.927**  
 
 **Matriz de Confusão — Melhor KNN**  
-![Matriz de Confusão (Melhor KNN)](plots/best_cm.png)
+![Matriz de Confusão (Melhor KNN)](best_cm.png)
 
 > **Leitura:** redução de erros na **classe 1** e leve ganho geral (accuracy/F1_macro).
 
@@ -93,20 +93,20 @@ Após a busca de hiperparâmetros, a melhor configuração foi:
 ### 4.3 Comparações Visuais
 
 **Curva ROC (macro-average) — Baseline vs Melhor**  
-![ROC Macro – Comparação](plots/roc_comparison.png)  
+![ROC Macro – Comparação](roc_comparison.png)  
 - Ambas as curvas apresentam **AUC alto** (~0.97–0.98); o modelo otimizado supera levemente o baseline, sobretudo na classe 1.
 
 **Precision–Recall (macro-average) — Baseline vs Melhor**  
-![Precision–Recall Macro – Comparação](plots/pr_comparison.png)  
+![Precision–Recall Macro – Comparação](pr_comparison.png)  
 - O modelo otimizado apresenta **maior precisão para o mesmo recall**, indicando menos falsos positivos, em especial na classe 1.
 
 **Métricas por classe (Precision, Recall, F1)**  
-![Métricas por classe](plots/bars_metrics.png)  
+![Métricas por classe](bars_metrics.png)  
 - Classes **0** (baixo) e **2** (alto): métricas consistentemente altas nos dois modelos.  
 - **Classe 1** (médio): **melhora** de F1 (≈0.886 → ≈0.892) no modelo otimizado.
 
 **Resumo — Accuracy e F1_macro**  
-![Resumo Accuracy e F1_macro](plots/acc_f1.png)  
+![Resumo Accuracy e F1_macro](acc_f1.png)  
 - **Baseline:** Accuracy = **0.923**, F1_macro = **0.923**  
 - **Melhor KNN:** Accuracy = **0.927**, F1_macro = **0.927**
 
